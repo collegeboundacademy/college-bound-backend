@@ -1,4 +1,4 @@
-## Initilization
+## Initialization
 
 1. Make sure you have docker installed!
 
