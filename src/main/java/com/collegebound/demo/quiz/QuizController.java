@@ -14,6 +14,32 @@ import com.collegebound.demo.user.User;
 import com.collegebound.demo.user.UserRepository;
 
 
+// Example request body for creating a quiz:
+// {
+//     title: String,
+//     description: String,
+//     questions: [
+//       {
+//         question: String,
+//         answerChoices: [
+//           String,
+//           String,
+//           String
+//         ],
+//         correctAnswer: String
+//       },
+//       {
+//         question: String,
+//         answerChoices: [
+//           String,
+//           String,
+//           String
+//         ],
+//         correctAnswer: String
+//       }
+//     ]
+//   };
+
 @RestController
 @RequestMapping("/api/quizzes")
 public class QuizController {

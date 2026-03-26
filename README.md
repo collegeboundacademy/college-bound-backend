@@ -11,3 +11,19 @@
 ## FAQ
 
 ### **IF THE DATABASE IS CONFIGURED WRONG OR NOT RUNNING ON THE CORRECT PORT, IT WILL FAIL**
+
+### How do I send a request from the frontend?
+
+Make sure you include the following:
+
+```js
+{
+    method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "true"
+        },
+        credentials: "include",
+        body: JSON.stringify({...})
+}
+```
