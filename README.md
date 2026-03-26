@@ -7,3 +7,7 @@
 3. Make sure the container is running before starting the app
 
 4. Also make sure `application.properties` is correctly configured (client-id, client-secret).
+
+## FAQ
+
+### **IF THE DATABASE IS CONFIGURED WRONG OR NOT RUNNING ON THE CORRECT PORT, IT WILL FAIL**
