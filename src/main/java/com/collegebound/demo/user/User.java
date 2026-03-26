@@ -6,6 +6,10 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import java.util.List;
+
+import com.collegebound.demo.quiz.Quiz;
 
 @Entity
 public class User {
@@ -18,6 +22,9 @@ public class User {
     private String username;
     private String provider;
     private Date createdAt;
+    
+    @OneToMany(mappedBy = "creator")
+    private List<Quiz> quizzesCreated;
 
     public User() {
         this.createdAt = new Date();
