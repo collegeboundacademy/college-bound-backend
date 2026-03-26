@@ -1,15 +1,15 @@
 package com.collegebound.demo.user;
 
 import java.util.Date;
+import java.util.List;
+
+import com.collegebound.demo.quiz.Quiz;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
-import java.util.List;
-
-import com.collegebound.demo.quiz.Quiz;
 
 @Entity
 public class User {
@@ -59,5 +59,11 @@ public class User {
     }
     public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
+    }
+    public List<Quiz> getQuizzesCreated() {
+        return quizzesCreated;
+    }
+    public void setQuizzesCreated(List<Quiz> quizzesCreated) {
+        this.quizzesCreated = quizzesCreated;
     }
 }
