@@ -3,8 +3,11 @@ package com.collegebound.demo.quiz;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.collegebound.demo.user.User;
 import com.collegebound.demo.user.UserRepository;
+
 
 
 // Example request body for creating a quiz:
@@ -75,4 +79,12 @@ public class QuizController {
         return ResponseEntity.ok(quiz);
     }
     
+    @GetMapping("/get/{quizId}")
+    public ResponseEntity<String> getQuizById(@PathVariable("quizId") Long id) {
+        Quiz quiz = quizRepo.findById(id).orElseThrow(() -> new RuntimeException("Quiz not found"));
+        String quizJson = quiz.convertToJson();
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(quizJson);
+    }
 }

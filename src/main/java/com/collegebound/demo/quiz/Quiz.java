@@ -4,6 +4,9 @@ import java.util.Date;
 import java.util.List;
 
 import com.collegebound.demo.user.User;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -26,6 +29,7 @@ public class Quiz {
     private Date createdAt;
 
     @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Question> questions;
 
     public Quiz() {
@@ -75,5 +79,18 @@ public class Quiz {
     }
     public void setQuestions(List<Question> questions) {
         this.questions = questions;
+    }
+    public String convertToJson() {
+        QuizRequest quizRequest = new QuizRequest();
+        quizRequest.setTitle(this.title);
+        quizRequest.setDescription(this.description);
+        quizRequest.setQuestions(this.questions);
+
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            return mapper.writeValueAsString(quizRequest);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Failed to serialize quiz to JSON", e);
+        }
     }
 }

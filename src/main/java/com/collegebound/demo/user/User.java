@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.collegebound.demo.quiz.Quiz;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -24,6 +25,7 @@ public class User {
     private Date createdAt;
     
     @OneToMany(mappedBy = "creator")
+    @JsonIgnore
     private List<Quiz> quizzesCreated;
 
     public User() {

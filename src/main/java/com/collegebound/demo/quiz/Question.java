@@ -2,6 +2,8 @@ package com.collegebound.demo.quiz;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -26,11 +28,10 @@ public class Question {
 
     @ManyToOne(fetch = jakarta.persistence.FetchType.LAZY)
     @JoinColumn(name = "quiz_id")
+    @JsonBackReference
     private Quiz quiz;
 
     public Question() {}
-
-    // getters/setters
 
     public Long getId() {
         return id;
