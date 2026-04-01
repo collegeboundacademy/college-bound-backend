@@ -85,8 +85,10 @@ public class SecurityConfig {
     private boolean isGithubOAuthConfigured() {
         return githubClientId != null
             && !githubClientId.isBlank()
+            && !"__unset__".equals(githubClientId)
             && githubClientSecret != null
-            && !githubClientSecret.isBlank();
+            && !githubClientSecret.isBlank()
+            && !"__unset__".equals(githubClientSecret);
     }
 
     @Bean
