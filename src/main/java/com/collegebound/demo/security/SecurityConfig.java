@@ -72,7 +72,7 @@ public class SecurityConfig {
                     cookie.setMaxAge(24 * 60 * 60);
 
                     response.addCookie(cookie);
-                    response.sendRedirect(frontendUrl + "/college-bound/");
+                    response.sendRedirect(frontendUrl);
                 })
             );
         }
