@@ -22,7 +22,7 @@ import jakarta.servlet.http.Cookie;
 @Configuration
 public class SecurityConfig {
 
-    @Value("${app.frontend.url:http://localhost:4001}")
+    @Value("${app.frontend.url:http://localhost:4000}")
     private String frontendUrl;
 
     @Value("${app.cors.allowed-origins:http://localhost:4000,http://127.0.0.1:4000,http://localhost:4001,http://127.0.0.1:4001,https://collegeboundacademy.github.io}")
@@ -42,6 +42,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/auth/**").permitAll()
                 .requestMatchers("/api/colleges/**").permitAll()
+                .requestMatchers("/oauth2/**").permitAll()
+                .requestMatchers("/login/**").permitAll()
                 .anyRequest().authenticated()
             );
 
