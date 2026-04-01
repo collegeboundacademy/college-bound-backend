@@ -25,7 +25,7 @@ public class SecurityConfig {
     @Value("${app.frontend.url:http://localhost:4001}")
     private String frontendUrl;
 
-    @Value("${app.cors.allowed-origins:http://localhost:4000,http://127.0.0.1:4000,http://localhost:4001,http://127.0.0.1:4001,https://pages.opencodingsociety.com}")
+    @Value("${app.cors.allowed-origins:http://localhost:4000,http://127.0.0.1:4000,http://localhost:4001,http://127.0.0.1:4001,https://collegeboundacademy.github.io}")
     private String corsAllowedOrigins;
 
     @Value("${GITHUB_CLIENT_ID:}")
