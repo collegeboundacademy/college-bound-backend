@@ -28,6 +28,12 @@ public class SecurityConfig {
     @Value("${app.cors.allowed-origins:http://localhost:4000,http://127.0.0.1:4000,http://localhost:4001,http://127.0.0.1:4001,https://pages.opencodingsociety.com}")
     private String corsAllowedOrigins;
 
+    @Value("${GITHUB_CLIENT_ID:}")
+    private String githubClientId;
+
+    @Value("${GITHUB_CLIENT_SECRET:}")
+    private String githubClientSecret;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, UserRepository userRepo) throws Exception {
         http
@@ -37,14 +43,16 @@ public class SecurityConfig {
                 .requestMatchers("/auth/**").permitAll()
                 .requestMatchers("/api/colleges/**").permitAll()
                 .anyRequest().authenticated()
-            )
-            .oauth2Login(oauth -> oauth
+            );
+
+        if (isGithubOAuthConfigured()) {
+            http.oauth2Login(oauth -> oauth
                 .successHandler((request, response, authentication) -> {
                     OAuth2User oauthUser = (OAuth2User) authentication.getPrincipal();
                     String username = oauthUser.getAttribute("login"); // GitHub username
                     Integer githubId = oauthUser.getAttribute("id"); // GitHub ID
 
-                    // ✅ Save user if not exists
+                    // Save user if not exists
                     userRepo.findByUsername(username).orElseGet(() -> {
                         User user = new User();
                         user.setUsername(username);
@@ -55,10 +63,10 @@ public class SecurityConfig {
 
                     // Generate JWT token
                     String token = JwtService.generateToken(username);
-                    
+
                     // Set token in HTTP-only cookie
                     Cookie cookie = new Cookie("authToken", token);
-                    cookie.setHttpOnly(true); 
+                    cookie.setHttpOnly(true);
                     cookie.setSecure(false);
                     cookie.setPath("/");
                     cookie.setMaxAge(24 * 60 * 60);
@@ -66,10 +74,19 @@ public class SecurityConfig {
                     response.addCookie(cookie);
                     response.sendRedirect(frontendUrl + "/college-bound/");
                 })
-            )
-            .oauth2ResourceServer(oauth -> oauth.jwt(jwt -> {}));
+            );
+        }
+
+        http.oauth2ResourceServer(oauth -> oauth.jwt(jwt -> {}));
 
         return http.build();
+    }
+
+    private boolean isGithubOAuthConfigured() {
+        return githubClientId != null
+            && !githubClientId.isBlank()
+            && githubClientSecret != null
+            && !githubClientSecret.isBlank();
     }
 
     @Bean
