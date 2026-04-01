@@ -12,25 +12,9 @@ services:
         sync: false
       - key: GITHUB_CLIENT_SECRET
         sync: false
-      - key: SPRING_DATASOURCE_URL
-        fromDatabase:
-          name: college-bound-postgres
-          property: connectionString
-      - key: SPRING_DATASOURCE_USERNAME
-        fromDatabase:
-          name: college-bound-postgres
-          property: user
-      - key: SPRING_DATASOURCE_PASSWORD
-        fromDatabase:
-          name: college-bound-postgres
-          property: password
       - key: FRONTEND_URL
         value: https://pages.opencodingsociety.com
       - key: CORS_ALLOWED_ORIGINS
         value: https://pages.opencodingsociety.com
       - key: COLLEGE_DATA_SOURCE
         value: api
-
-  - type: postgres
-    name: college-bound-postgres
-    plan: free
