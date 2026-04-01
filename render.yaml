@@ -31,11 +31,7 @@ services:
         value: https://pages.opencodingsociety.com
       - key: COLLEGE_DATA_SOURCE
         value: api
-    depends_on:
-      - college-bound-postgres
 
   - type: pserv
     name: college-bound-postgres
-    ipAddress: 10.0.0.2
     plan: free
-    postgresVersion: 15
