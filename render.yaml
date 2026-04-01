@@ -1,10 +1,9 @@
 services:
   - type: web
     name: college-bound-backend
-    runtime: java
     plan: free
     buildCommand: ./mvnw clean package -DskipTests
-    startCommand: java -Dserver.port=$PORT -jar target/*.jar
+    startCommand: java -Dserver.port=$PORT -jar target/demo-0.0.1-SNAPSHOT.jar
     healthCheckPath: /api/colleges/search?limit=1
     envVars:
       - key: COLLEGE_SCORECARD_API_KEY
@@ -32,6 +31,6 @@ services:
       - key: COLLEGE_DATA_SOURCE
         value: api
 
-  - type: pserv
+  - type: postgres
     name: college-bound-postgres
     plan: free
