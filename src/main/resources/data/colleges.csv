@@ -1,0 +1,13 @@
+id,name,state,type,acceptanceRate,averageNetPrice,retentionRate,satMidpoint,actMidpoint,averageGpa,undergradEnrollment,dataLastRefreshed
+ucla,University of California Los Angeles,CA,Public,0.09,17300,0.95,1400,31,3.92,33000,2026-03-31T00:00:00Z
+usc,University of Southern California,CA,Private,0.12,41200,0.96,1470,33,3.89,21000,2026-03-31T00:00:00Z
+ut-austin,The University of Texas at Austin,TX,Public,0.31,18200,0.94,1360,30,3.80,42000,2026-03-31T00:00:00Z
+georgia-tech,Georgia Institute of Technology,GA,Public,0.18,17100,0.97,1450,33,3.95,19000,2026-03-31T00:00:00Z
+penn-state,Penn State University,PA,Public,0.54,26500,0.91,1260,28,3.58,41000,2026-03-31T00:00:00Z
+arizona-state,Arizona State University,AZ,Public,0.89,14500,0.87,1210,25,3.55,65000,2026-03-31T00:00:00Z
+howard,Howard University,DC,Private,0.35,24200,0.89,1180,25,3.62,11000,2026-03-31T00:00:00Z
+spelman,Spelman College,GA,Private,0.51,28600,0.90,1130,24,3.70,2400,2026-03-31T00:00:00Z
+fsu,Florida State University,FL,Public,0.25,12200,0.93,1320,29,3.74,32000,2026-03-31T00:00:00Z
+purdue,Purdue University,IN,Public,0.53,12900,0.92,1310,29,3.68,38000,2026-03-31T00:00:00Z
+northwestern,Northwestern University,IL,Private,0.07,30800,0.98,1500,34,3.95,8600,2026-03-31T00:00:00Z
+duke,Duke University,NC,Private,0.06,26800,0.98,1510,34,3.94,6900,2026-03-31T00:00:00Z

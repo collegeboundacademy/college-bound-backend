@@ -1,5 +1,8 @@
 package com.collegebound.demo.security;
 
+import java.util.Arrays;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -19,6 +22,12 @@ import jakarta.servlet.http.Cookie;
 @Configuration
 public class SecurityConfig {
 
+    @Value("${app.frontend.url:http://localhost:4001}")
+    private String frontendUrl;
+
+    @Value("${app.cors.allowed-origins:http://localhost:4000,http://127.0.0.1:4000,http://localhost:4001,http://127.0.0.1:4001,https://pages.opencodingsociety.com}")
+    private String corsAllowedOrigins;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, UserRepository userRepo) throws Exception {
         http
@@ -26,6 +35,7 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/auth/**").permitAll()
+                .requestMatchers("/api/colleges/**").permitAll()
                 .anyRequest().authenticated()
             )
             .oauth2Login(oauth -> oauth
@@ -54,7 +64,7 @@ public class SecurityConfig {
                     cookie.setMaxAge(24 * 60 * 60);
 
                     response.addCookie(cookie);
-                    response.sendRedirect("http://localhost:4000/college-bound/");
+                    response.sendRedirect(frontendUrl + "/college-bound/");
                 })
             )
             .oauth2ResourceServer(oauth -> oauth.jwt(jwt -> {}));
@@ -73,7 +83,10 @@ public class SecurityConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                    .allowedOrigins("http://localhost:4000", "http://127.0.0.1:4000")
+                    .allowedOrigins(Arrays.stream(corsAllowedOrigins.split(","))
+                        .map(String::trim)
+                        .filter(s -> !s.isBlank())
+                        .toArray(String[]::new))
                         .allowedMethods("*")
                         .allowCredentials(true);
             }
