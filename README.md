@@ -1,70 +1,76 @@
-## Initialization
+## Local Run
 
-1. Make sure you have docker installed!
-
-2. Run ./scripts/init_db.sh -> This will create your MySQL datebase running on port 3306
-
-3. Make sure the container is running before starting the app
-
-4. Also make sure `application.properties` is correctly configured (client-id, client-secret).
-
-5. For live College Explorer data, set your College Scorecard API key before running:
+1. Start MySQL (local default is `localhost:3306/user_management`).
+2. Set required environment variables in your shell:
 
 ```bash
 export COLLEGE_SCORECARD_API_KEY=your_key_here
+export GITHUB_CLIENT_ID=your_client_id
+export GITHUB_CLIENT_SECRET=your_client_secret
 ```
 
-You can request a key from api.data.gov and use the same shell session to run `./mvnw spring-boot:run`.
-
-## CSV mode (no signup required)
-
-If you do not want an API key, College Explorer can read from a local CSV dataset.
-
-CSV mode is the default source now.
-
-1. Put your CSV file somewhere on disk (or use the bundled starter file at `src/main/resources/data/colleges.csv`).
-2. Export the path before starting backend:
-
-```bash
-export COLLEGE_CSV_PATH=/absolute/path/to/colleges.csv
-```
-
-3. Run the backend normally:
+3. Run backend:
 
 ```bash
 ./mvnw spring-boot:run
 ```
 
-Optional: switch source modes when needed:
+The app reads all sensitive values from environment variables. Do not hardcode secrets in source files.
+
+## Data Source Mode
+
+Default is API mode:
 
 ```bash
-export COLLEGE_DATA_SOURCE=csv   # default
-export COLLEGE_DATA_SOURCE=api   # API only
-export COLLEGE_DATA_SOURCE=auto  # try API, then CSV
+export COLLEGE_DATA_SOURCE=api
 ```
 
-Expected CSV headers:
+Optional modes:
+
+```bash
+export COLLEGE_DATA_SOURCE=csv
+export COLLEGE_DATA_SOURCE=auto
+```
+
+CSV path override (only when CSV mode is used):
+
+```bash
+export COLLEGE_CSV_PATH=/absolute/path/to/colleges.csv
+```
+
+## Render Deployment
+
+This repo includes a ready blueprint file: `render.yaml`.
+
+### Option A: Blueprint deploy
+1. In Render, choose **New +** -> **Blueprint**.
+2. Select this repository.
+3. Render will load `render.yaml`.
+4. Fill secret env vars before first deploy:
+   - `COLLEGE_SCORECARD_API_KEY`
+   - `GITHUB_CLIENT_ID`
+   - `GITHUB_CLIENT_SECRET`
+   - `SPRING_DATASOURCE_URL`
+   - `SPRING_DATASOURCE_USERNAME`
+   - `SPRING_DATASOURCE_PASSWORD`
+
+### Option B: Manual web service
+Use:
+- Build command: `./mvnw clean package -DskipTests`
+- Start command: `java -Dserver.port=$PORT -jar target/*.jar`
+
+Set the same env vars listed above.
+
+### Frontend integration
+For GitHub Pages frontend, point the Jekyll setting `college_explorer_api_base` to your Render backend URL:
 
 ```text
-id,name,state,type,acceptanceRate,averageNetPrice,retentionRate,satMidpoint,actMidpoint,averageGpa,undergradEnrollment,dataLastRefreshed
+https://<your-service>.onrender.com/api/colleges
 ```
 
-## FAQ
+Also set CORS in backend env:
 
-### **IF THE DATABASE IS CONFIGURED WRONG OR NOT RUNNING ON THE CORRECT PORT, IT WILL FAIL**
-
-### How do I send a request from the frontend?
-
-Make sure you include the following:
-
-```js
-{
-    method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "true"
-        },
-        credentials: "include",
-        body: JSON.stringify({...})
-}
+```bash
+FRONTEND_URL=https://pages.opencodingsociety.com
+CORS_ALLOWED_ORIGINS=https://pages.opencodingsociety.com
 ```
