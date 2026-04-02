@@ -2,6 +2,8 @@ package com.collegebound.demo.college;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -21,6 +23,25 @@ public class CollegeExplorerController {
 
     @Autowired
     private CollegeScorecardClient scorecardClient;
+
+    private static final Map<String, List<String>> QUERY_ALIASES;
+
+    static {
+        Map<String, List<String>> aliases = new HashMap<>();
+        aliases.put("ucla", List.of("University of California, Los Angeles"));
+        aliases.put("ucsd", List.of("University of California, San Diego"));
+        aliases.put("ucb", List.of("University of California, Berkeley"));
+        aliases.put("berkeley", List.of("University of California, Berkeley"));
+        aliases.put("ucd", List.of("University of California, Davis"));
+        aliases.put("uc davis", List.of("University of California, Davis"));
+        aliases.put("uci", List.of("University of California, Irvine"));
+        aliases.put("ucsb", List.of("University of California, Santa Barbara"));
+        aliases.put("ucr", List.of("University of California, Riverside"));
+        aliases.put("ucsc", List.of("University of California, Santa Cruz"));
+        aliases.put("ucm", List.of("University of California, Merced"));
+        aliases.put("usc", List.of("University of Southern California"));
+        QUERY_ALIASES = Collections.unmodifiableMap(aliases);
+    }
 
         private final List<College> fallbackColleges = Arrays.asList(
             new College("usc", "University of Southern California", "CA", "Private", 0.12, 41200, 0.96, 1470, 33,
@@ -69,17 +90,23 @@ public class CollegeExplorerController {
             @RequestParam(name = "limit", defaultValue = "20") int limit) {
         int boundedLimit = Math.max(1, Math.min(limit, 100));
 
-        Optional<CollegeScorecardClient.SearchResult> liveSearch = scorecardClient.search(q, state, boundedLimit);
+        List<String> queryCandidates = buildQueryCandidates(q);
+        List<String> normalizedQueryCandidates = queryCandidates.stream()
+            .map(this::normalize)
+            .filter(s -> !s.isBlank())
+            .distinct()
+            .toList();
+
+        Optional<CollegeScorecardClient.SearchResult> liveSearch = searchWithAliases(queryCandidates, state, boundedLimit);
 
         List<College> sourceColleges = liveSearch.map(CollegeScorecardClient.SearchResult::getColleges)
                 .orElse(fallbackColleges);
 
-        String query = normalize(q);
         String stateFilter = normalize(state);
         String typeFilter = normalize(type);
 
         List<College> filtered = sourceColleges.stream()
-                .filter(c -> query.isBlank() || containsIgnoreCase(c.getName(), query))
+            .filter(c -> matchesCollegeQuery(c, normalizedQueryCandidates))
                 .filter(c -> stateFilter.isBlank() || c.getState().equalsIgnoreCase(stateFilter))
                 .filter(c -> typeFilter.isBlank() || c.getType().equalsIgnoreCase(typeFilter))
                 .filter(c -> maxNetPrice == null || c.getAverageNetPrice() <= maxNetPrice)
@@ -219,6 +246,64 @@ public class CollegeExplorerController {
         }
 
         return "Developing";
+    }
+
+    private Optional<CollegeScorecardClient.SearchResult> searchWithAliases(List<String> queryCandidates, String state, int limit) {
+        if (queryCandidates.isEmpty()) {
+            return scorecardClient.search(null, state, limit);
+        }
+
+        Optional<CollegeScorecardClient.SearchResult> firstSuccessfulResult = Optional.empty();
+
+        for (String candidate : queryCandidates) {
+            Optional<CollegeScorecardClient.SearchResult> result = scorecardClient.search(candidate, state, limit);
+            if (result.isEmpty()) {
+                continue;
+            }
+
+            if (firstSuccessfulResult.isEmpty()) {
+                firstSuccessfulResult = result;
+            }
+
+            if (!result.get().getColleges().isEmpty()) {
+                return result;
+            }
+        }
+
+        return firstSuccessfulResult;
+    }
+
+    private List<String> buildQueryCandidates(String rawQuery) {
+        String trimmed = rawQuery == null ? "" : rawQuery.trim();
+        if (trimmed.isBlank()) {
+            return List.of();
+        }
+
+        String normalized = normalize(trimmed);
+        List<String> candidates = new ArrayList<>();
+        candidates.add(trimmed);
+
+        List<String> aliases = QUERY_ALIASES.get(normalized);
+        if (aliases != null) {
+            candidates.addAll(aliases);
+        }
+
+        return candidates.stream().distinct().toList();
+    }
+
+    private boolean matchesCollegeQuery(College college, List<String> normalizedCandidates) {
+        if (normalizedCandidates.isEmpty()) {
+            return true;
+        }
+
+        String name = normalize(college.getName());
+        for (String query : normalizedCandidates) {
+            if (name.contains(query)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private String normalize(String value) {
