@@ -1,8 +1,5 @@
 package com.collegebound.demo.security;
 
-import java.util.Arrays;
-
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -22,18 +19,6 @@ import jakarta.servlet.http.Cookie;
 @Configuration
 public class SecurityConfig {
 
-    @Value("${app.frontend.url:http://localhost:4000}")
-    private String frontendUrl;
-
-    @Value("${app.cors.allowed-origins:http://localhost:4000,http://127.0.0.1:4000,http://localhost:4001,http://127.0.0.1:4001,https://collegeboundacademy.github.io}")
-    private String corsAllowedOrigins;
-
-    @Value("${GITHUB_CLIENT_ID:}")
-    private String githubClientId;
-
-    @Value("${GITHUB_CLIENT_SECRET:}")
-    private String githubClientSecret;
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, UserRepository userRepo) throws Exception {
         http
@@ -41,20 +26,17 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/auth/**").permitAll()
-                .requestMatchers("/api/colleges/**").permitAll()
-                .requestMatchers("/oauth2/**").permitAll()
-                .requestMatchers("/login/**").permitAll()
+                .requestMatchers("/api/scholarships/**").permitAll()
                 .anyRequest().authenticated()
-            );
-
-        if (isGithubOAuthConfigured()) {
-            http.oauth2Login(oauth -> oauth
+                
+            )
+            .oauth2Login(oauth -> oauth
                 .successHandler((request, response, authentication) -> {
                     OAuth2User oauthUser = (OAuth2User) authentication.getPrincipal();
                     String username = oauthUser.getAttribute("login"); // GitHub username
                     Integer githubId = oauthUser.getAttribute("id"); // GitHub ID
 
-                    // Save user if not exists
+                    // ✅ Save user if not exists
                     userRepo.findByUsername(username).orElseGet(() -> {
                         User user = new User();
                         user.setUsername(username);
@@ -65,32 +47,21 @@ public class SecurityConfig {
 
                     // Generate JWT token
                     String token = JwtService.generateToken(username);
-
+                    
                     // Set token in HTTP-only cookie
                     Cookie cookie = new Cookie("authToken", token);
-                    cookie.setHttpOnly(true);
+                    cookie.setHttpOnly(true); 
                     cookie.setSecure(false);
                     cookie.setPath("/");
                     cookie.setMaxAge(24 * 60 * 60);
 
                     response.addCookie(cookie);
-                    response.sendRedirect(frontendUrl);
+                    response.sendRedirect("http://localhost:4000/college-bound/");
                 })
-            );
-        }
-
-        http.oauth2ResourceServer(oauth -> oauth.jwt(jwt -> {}));
+            )
+            .oauth2ResourceServer(oauth -> oauth.jwt(jwt -> {}));
 
         return http.build();
-    }
-
-    private boolean isGithubOAuthConfigured() {
-        return githubClientId != null
-            && !githubClientId.isBlank()
-            && !"__unset__".equals(githubClientId)
-            && githubClientSecret != null
-            && !githubClientSecret.isBlank()
-            && !"__unset__".equals(githubClientSecret);
     }
 
     @Bean
@@ -104,10 +75,7 @@ public class SecurityConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                    .allowedOrigins(Arrays.stream(corsAllowedOrigins.split(","))
-                        .map(String::trim)
-                        .filter(s -> !s.isBlank())
-                        .toArray(String[]::new))
+                        .allowedOrigins("http://localhost:4000") // Frontend URL
                         .allowedMethods("*")
                         .allowCredentials(true);
             }
